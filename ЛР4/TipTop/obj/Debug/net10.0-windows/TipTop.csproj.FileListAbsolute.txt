@@ -1,0 +1,14 @@
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\obj\Debug\net10.0-windows\TipTop.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\obj\Debug\net10.0-windows\TipTop.AssemblyInfoInputs.cache
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\obj\Debug\net10.0-windows\TipTop.AssemblyInfo.cs
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\obj\Debug\net10.0-windows\TipTop.csproj.CoreCompileInputs.cache
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\bin\Debug\net10.0-windows\TipTop.exe
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\bin\Debug\net10.0-windows\TipTop.deps.json
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\bin\Debug\net10.0-windows\TipTop.runtimeconfig.json
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\bin\Debug\net10.0-windows\TipTop.dll
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\bin\Debug\net10.0-windows\TipTop.pdb
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\obj\Debug\net10.0-windows\TipTop.dll
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\obj\Debug\net10.0-windows\refint\TipTop.dll
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\obj\Debug\net10.0-windows\TipTop.pdb
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\obj\Debug\net10.0-windows\TipTop.genruntimeconfig.cache
+C:\Users\grishnv\Desktop\TRPPO\ЛР4\TipTop\obj\Debug\net10.0-windows\ref\TipTop.dll

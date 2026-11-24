@@ -127,6 +127,55 @@ namespace TipTop
         Application.DoEvents();
         Shot(form, dir, "13-nn-column.png");
         Note(log, "13", status, grid, prompt);
+
+        if (grid.IsCurrentCellInEditMode)
+          grid.EndEdit();
+        Edit(grid, 4, 1);
+        TextBox nameEditor = grid.EditingControl as TextBox;
+        Prompt.Spec_KeyPress(nameEditor, new KeyPressEventArgs('C'));
+        nameEditor.Text = "C";
+        nameEditor.SelectionStart = nameEditor.Text.Length;
+        Application.DoEvents();
+        Shot(form, dir, "14-arrows-typed.png");
+        Note(log, "14", status, grid, prompt);
+
+        GridKey(grid, Keys.Down);
+        Shot(form, dir, "15-arrows-down.png");
+        Note(log, "15", status, grid, prompt);
+
+        GridKey(grid, Keys.Up);
+        Shot(form, dir, "16-arrows-up.png");
+        Note(log, "16", status, grid, prompt);
+
+        if (grid.IsCurrentCellInEditMode)
+          grid.CancelEdit();
+        Application.DoEvents();
+        Edit(grid, 5, 1);
+        nameEditor = grid.EditingControl as TextBox;
+        nameEditor.Text = "Qwert";
+        nameEditor.SelectionStart = nameEditor.Text.Length;
+        nameEditor.SelectionLength = 0;
+        Prompt.Spec_KeyPress(nameEditor, new KeyPressEventArgs('y'));
+        nameEditor.Text = "Qwerty";
+        nameEditor.SelectionStart = nameEditor.Text.Length;
+        Application.DoEvents();
+        Shot(form, dir, "17-tab-draft.png");
+        Note(log, "17", status, grid, prompt);
+
+        GridKey(grid, Keys.Tab);
+        Shot(form, dir, "18-tab-after.png");
+        Note(log, "18", status, grid, prompt);
+
+        Edit(grid, 6, 1);
+        nameEditor = grid.EditingControl as TextBox;
+        nameEditor.Text = "Helium";
+        nameEditor.SelectionStart = nameEditor.Text.Length;
+        Application.DoEvents();
+        Shot(form, dir, "19-shift-tab-draft.png");
+        Note(log, "19", status, grid, prompt);
+        GridKey(grid, Keys.Shift | Keys.Tab);
+        Shot(form, dir, "20-shift-tab-after.png");
+        Note(log, "20", status, grid, prompt);
       }
       finally
       {
@@ -137,6 +186,15 @@ namespace TipTop
       return 0;
     }
 
+
+    static void GridKey(DataGridView grid, Keys key)
+    {
+      System.Reflection.MethodInfo method = typeof(DataGridView).GetMethod(
+        "ProcessDataGridViewKey",
+        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+      method.Invoke(grid, new object[] { new KeyEventArgs(key) });
+      Application.DoEvents();
+    }
     static void Edit(DataGridView grid, int row, int column)
     {
       if (grid.IsCurrentCellInEditMode)

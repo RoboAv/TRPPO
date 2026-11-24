@@ -153,11 +153,14 @@ namespace TipTop
     private void dataGridView2_CellEndEdit(object sender, DataGridViewCellEventArgs e)
     {
       Prompt.DetachEditControl();
-      if (Prompt.Active && !Prompt.FromPrompt)
-        return;
-      if (!Prompt.Cancelled && !Prompt.FromPrompt)
-        Prompt.StoreNewCellValue(e, dataGridView2, dgwNamesPrompt);
-      if (!Prompt.KeepOpen)
+      if (!dataGridView2.NavigatingWithTab && !Prompt.FromPrompt)
+      {
+        if (Prompt.Active)
+          return;
+        if (!Prompt.Cancelled)
+          Prompt.StoreNewCellValue(e, dataGridView2, dgwNamesPrompt);
+      }
+      if (!Prompt.KeepOpen || dataGridView2.NavigatingWithTab)
         Prompt.ForceClose();
       Prompt.Cancelled = false;
       Prompt.FromPrompt = false;
@@ -167,22 +170,17 @@ namespace TipTop
 
     private void dataGridView2_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
     {
-      Prompt.Attach(e.Control);
-      if (Prompt.CaretAtStart || Control.MouseButtons == MouseButtons.Left)
-        Prompt.PlaceCaretAtStart();
-      Prompt.CaretAtStart = false;
       if (e.Control is ComboBox combo)
       {
         combo.DropDownStyle = ComboBoxStyle.DropDown;
         combo.AutoCompleteMode = AutoCompleteMode.None;
         combo.AutoCompleteSource = AutoCompleteSource.None;
         combo.DroppedDown = false;
-        BeginInvoke(new Action(delegate
-        {
-          if (!combo.IsDisposed)
-            combo.DroppedDown = false;
-        }));
       }
+      Prompt.Attach(e.Control);
+      if (Prompt.CaretAtStart || Control.MouseButtons == MouseButtons.Left)
+        Prompt.PlaceCaretAtStart();
+      Prompt.CaretAtStart = false;
       toolStripStatusLabel2.Text = "table ED is initiated";
     }
 
@@ -208,7 +206,7 @@ namespace TipTop
 
     private void dataGridView2_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
     {
-      if (dataGridView2.Columns[e.ColumnIndex] is DataGridViewComboBoxColumn col)
+      if (!dataGridView2.NavigatingWithTab && dataGridView2.Columns[e.ColumnIndex] is DataGridViewComboBoxColumn col)
         Prompt.EnsureComboItem(col, Convert.ToString(e.FormattedValue));
     }
 
@@ -232,6 +230,47 @@ namespace TipTop
       if (same || (Prompt.Sticky && cell == null))
         return;
       Prompt.ForceClose();
+    }
+  }
+
+  class TableGrid : DataGridView
+  {
+    public bool NavigatingWithTab { get; private set; }
+
+    protected override bool ProcessDataGridViewKey(KeyEventArgs e)
+    {
+      if (e.KeyData == Keys.Tab || e.KeyData == (Keys.Shift | Keys.Tab))
+        return ProcessDialogKey(e.KeyData);
+
+      if (IsCurrentCellInEditMode && EditingControl != null)
+      {
+        Prompt.Spec_KeyDown(EditingControl, e);
+        if (e.Handled)
+          return true;
+      }
+      return base.ProcessDataGridViewKey(e);
+    }
+
+    protected override bool ProcessDialogKey(Keys keyData)
+    {
+      if (keyData != Keys.Tab && keyData != (Keys.Shift | Keys.Tab))
+        return base.ProcessDialogKey(keyData);
+
+      NavigatingWithTab = true;
+      try
+      {
+        if (IsCurrentCellInEditMode)
+        {
+          if (EditingControl is ComboBox combo)
+            combo.DroppedDown = false;
+          CancelEdit();
+        }
+        return base.ProcessDialogKey(keyData);
+      }
+      finally
+      {
+        NavigatingWithTab = false;
+      }
     }
   }
 
@@ -279,11 +318,10 @@ namespace TipTop
       BindColumn(curCell);
       Wire();
       AdjustPrompt();
-      if (vPrompt.Rows.Count > 0)
-        vPrompt.ClearSelection();
       Opened = true;
       vPrompt.Visible = true;
       vPrompt.BringToFront();
+      ClearPromptSelection();
       if (vStatus != null)
         vStatus.Text = "Подсказка открыта: " + dgw.Columns[curCell].HeaderText;
     }
@@ -482,6 +520,11 @@ namespace TipTop
 
     public static void Spec_KeyDown(object sender, KeyEventArgs e)
     {
+      ComboBox combo = sender as ComboBox;
+      bool comboListOpen = combo?.DroppedDown == true;
+      if (e.Alt || (comboListOpen && e.KeyCode != Keys.Enter))
+        return;
+
       if (e.KeyCode == Keys.Down)
       {
         MovePrompt(1);
@@ -498,7 +541,13 @@ namespace TipTop
       {
         e.Handled = true;
         e.SuppressKeyPress = true;
-        if (navigatedByArrows && vPrompt != null && vPrompt.Rows.Count > 0)
+        if (comboListOpen)
+        {
+          string value = combo.GetItemText(combo.SelectedItem);
+          combo.DroppedDown = false;
+          ApplyToCell(value);
+        }
+        else if (navigatedByArrows && vPrompt != null && vPrompt.Rows.Count > 0)
           ApplyToCell(CellText(CurPromptrow));
         else
           CommitTypedText();
@@ -622,7 +671,6 @@ namespace TipTop
     {
       if (vPrompt == null || vPrompt.Rows.Count == 0)
         return;
-      HideComboDropDown();
       if (!navigatedByArrows && delta > 0 && !HasSelection())
         CurPromptrow = 0;
       else
@@ -632,7 +680,6 @@ namespace TipTop
       if (CurPromptrow >= vPrompt.Rows.Count)
         CurPromptrow = vPrompt.Rows.Count - 1;
       navigatedByArrows = true;
-      Active = true;
       vPrompt.ClearSelection();
       vPrompt.Rows[CurPromptrow].Selected = true;
       vPrompt.CurrentCell = vPrompt.Rows[CurPromptrow].Cells[0];
@@ -778,13 +825,6 @@ namespace TipTop
         combo.SelectionLength = 0;
         combo.DroppedDown = false;
       }
-    }
-
-    static void HideComboDropDown()
-    {
-      ComboBox combo = edit as ComboBox;
-      if (combo != null)
-        combo.DroppedDown = false;
     }
 
     static string EditText

@@ -23,7 +23,7 @@ namespace TipTop
       упорядочитьToolStripMenuItem = new ToolStripMenuItem();
       statusStrip1 = new StatusStrip();
       toolStripStatusLabel2 = new ToolStripStatusLabel();
-      dataGridView2 = new DataGridView();
+      dataGridView2 = new TableGrid();
       dgwNamesPrompt = new DataGridView();
       menuStrip1.SuspendLayout();
       statusStrip1.SuspendLayout();
@@ -134,7 +134,7 @@ namespace TipTop
     private ToolStripMenuItem упорядочитьToolStripMenuItem;
     private StatusStrip statusStrip1;
     private ToolStripStatusLabel toolStripStatusLabel2;
-    private DataGridView dataGridView2;
+    private TableGrid dataGridView2;
     private DataGridView dgwNamesPrompt;
   }
 }
